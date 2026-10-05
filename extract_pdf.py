@@ -121,9 +121,12 @@ def extract(pdf, panel_size=40):
         idx, assigned = -1, []
         for s in pie["slices"]:
             p = s["palette"]
-            if p is None or p <= idx:
+            if p is None:
                 p = idx + 1
                 s["inferred"] = True
+            elif p <= idx:
+                # palette wraps after 8 colors: take the next position with this color
+                p = idx + 1 + ((p - (idx + 1)) % len(PALETTE))
             idx = p
             assigned.append(p)
         if assigned and assigned[-1] >= len(values):

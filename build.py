@@ -14,6 +14,7 @@ Category/value text may be the Panelot/registration wording or the display label
 import argparse
 import html
 import json
+import math
 import re
 import sys
 from datetime import date
@@ -205,7 +206,21 @@ body{margin:0;font-family:"Noto Sans",Aptos,Arial,sans-serif;color:#000;backgrou
 .banner{background:#FFB800;color:#000;font-weight:700;padding:6px 18px;font-size:.9rem}
 .placeholder{padding:28px 18px;background:var(--pastel);font-size:1rem}
 a{color:#000}
+.chart.card{border:1px solid #D6DBE6;border-radius:10px;padding:18px 20px 12px}
+.card h2{color:#15203B;font-size:1.3rem;margin:0 0 6px}
+.pie{display:block;width:100%;height:auto;margin:0 auto}
+.pie .pct{fill:#fff;font-weight:700;stroke-width:3px;paint-order:stroke;stroke-linejoin:round;font-family:"Noto Sans",Aptos,Arial,sans-serif}
+.pie .lbl{fill:#15203B;font-family:"Noto Sans",Aptos,Arial,sans-serif}
+.pie .leader{fill:none;stroke:#6B7389;stroke-width:1.2}
+.card figcaption p{margin:4px 0 0;color:#000}
+.card .src{font-size:.75rem}
+.pie.narrow,.legend{display:none}
+.legend{list-style:none;margin:6px 0 0;padding:0;font-size:.9rem}
+.legend li{margin:3px 0;display:flex;gap:8px;align-items:baseline}
+.legend .sw{flex:0 0 14px;height:14px;border-radius:3px;transform:translateY(2px)}
+@media (max-width:520px){.pie.wide{display:none}.pie.narrow{display:block;max-width:240px!important}.legend{display:block}}
 """
+EMBED_PIE_CSS = "body{background:#F3F5F8;padding:8px}.banner{border-radius:6px;margin-bottom:8px}"
 
 HEIGHT_JS = """<script>
 (function(){function post(){try{parent.postMessage({type:"civic-assembly-embed",slug:%s,height:Math.ceil(document.body.getBoundingClientRect().height)},"*")}catch(e){}}
@@ -217,7 +232,143 @@ def pct_label(p):
     return f"{int(p + 0.5)}%"  # round half up, matching Panelot
 
 
+# Panelot pie palette (wraps after 8), by position in Panelot's value list
+PIE_PALETTE = ["#2978D6", "#EB6833", "#1CB07A", "#EDA100", "#E87AA3", "#008200", "#4A3BA6", "#E34A47"]
+CATEGORY_NOTES = {
+    "Education": "Census education data is collected differently on people above or below the age of 25",
+}
+STYLE = {"chart": "pie"}
+
+
+def _darken(hexcolor, f=0.62):
+    r, g, b = (int(hexcolor[i:i + 2], 16) for i in (1, 3, 5))
+    return "#%02X%02X%02X" % (int(r * f), int(g * f), int(b * f))
+
+
+def _wrap(text, width):
+    words, lines, cur = text.split(), [], ""
+    for w in words:
+        if cur and len(cur) + 1 + len(w) > width:
+            lines.append(cur)
+            cur = w
+        else:
+            cur = f"{cur} {w}".strip()
+    return lines + [cur] if cur else lines
+
+
+def pie_svg(cat_label, g, labels=True):
+    R, LH, FS = 112, 18, 15
+    wrap_chars = 22
+    rows = [r for r in g.itertuples() if r.count > 0]
+    total = sum(r.count for r in rows)
+    slices, a0 = [], 0.0
+    for r in rows:
+        sweep = r.count / total * 360
+        color = PIE_PALETTE[(r.value_order - 1) % len(PIE_PALETTE)]
+        slices.append(dict(r=r, a0=a0, a1=a0 + sweep, mid=a0 + sweep / 2, color=color))
+        a0 += sweep
+
+    # outside labels: right side for mid-angle < 180, left otherwise; de-overlap vertically
+    for s in slices:
+        s["lines"] = _wrap(s["r"].label, wrap_chars)
+        s["side"] = 1 if s["mid"] < 180 else -1
+        s["y"] = -(R + 14) * math.cos(math.radians(s["mid"]))  # relative to cy
+        s["h"] = len(s["lines"]) * LH
+    for side in (1, -1):
+        col = sorted([s for s in slices if s["side"] == side], key=lambda s: s["y"])
+        for i in range(1, len(col)):  # push down
+            prev = col[i - 1]
+            min_y = prev["y"] + prev["h"] / 2 + col[i]["h"] / 2 + 6
+            col[i]["y"] = max(col[i]["y"], min_y)
+        if col:  # recenter if pushed too low
+            over = (col[-1]["y"] + col[-1]["h"] / 2) - (R + 40)
+            if over > 0:
+                for s in col:
+                    s["y"] -= over
+                for i in range(len(col) - 2, -1, -1):
+                    nxt = col[i + 1]
+                    col[i]["y"] = min(col[i]["y"], nxt["y"] - nxt["h"] / 2 - col[i]["h"] / 2 - 6)
+    label_w = max([len(t) * FS * 0.58 for s in slices for t in s["lines"]] + [40]) if labels else -40
+    cx = 6 + label_w + R + 46
+    W = 2 * cx
+    lab = slices if labels else []
+    top = min([-R] + [s["y"] - s["h"] / 2 for s in lab]) - 12
+    bottom = max([R] + [s["y"] + s["h"] / 2 for s in lab]) + 12
+    cy = -top
+    H = bottom - top
+
+    def pt(angle, rad):
+        a = math.radians(angle)
+        return cx + rad * math.sin(a), cy - rad * math.cos(a)
+
+    parts = []
+    for s in slices:
+        r = s["r"]
+        tip = html.escape(f"{r.label}: {r.count} of {total} ({pct_label(r.percent)})")
+        if s["a1"] - s["a0"] >= 359.99:
+            shape = f'<circle cx="{cx}" cy="{cy}" r="{R}"/>'
+        else:
+            x0, y0 = pt(s["a0"], R)
+            x1, y1 = pt(s["a1"], R)
+            large = 1 if s["a1"] - s["a0"] > 180 else 0
+            shape = f'<path d="M{cx:.2f},{cy:.2f} L{x0:.2f},{y0:.2f} A{R},{R} 0 {large} 1 {x1:.2f},{y1:.2f} Z"/>'
+        parts.append(f'<g fill="{s["color"]}" stroke="#fff" stroke-width="2.5"><title>{tip}</title>{shape}</g>')
+    for s in slices:  # percent labels inside slices
+        sweep = s["a1"] - s["a0"]
+        size = 16 if sweep >= 25 else 12 if sweep >= 14 else 10
+        x, y = pt(s["mid"], R * (0.62 if sweep < 330 else 0))
+        parts.append(f'<text x="{x:.1f}" y="{y:.1f}" class="pct" font-size="{size}" stroke="{_darken(s["color"])}" '
+                     f'dominant-baseline="central" text-anchor="middle">{pct_label(s["r"].percent)}</text>')
+    for s in (slices if labels else []):  # leader lines + outside labels
+        ex, ey = pt(s["mid"], R + 2)
+        ax = cx + s["side"] * (R + 40)
+        ly = cy + s["y"]
+        tx = ax + s["side"] * 6
+        anchor = "start" if s["side"] == 1 else "end"
+        parts.append(f'<polyline points="{ex:.1f},{ey:.1f} {ax:.1f},{ly:.1f}" class="leader"/>')
+        y0 = ly - (len(s["lines"]) - 1) * LH / 2
+        tspans = "".join(f'<tspan x="{tx:.1f}" y="{y0 + i * LH:.1f}">{html.escape(t)}</tspan>'
+                         for i, t in enumerate(s["lines"]))
+        parts.append(f'<text class="lbl" font-size="{FS}" text-anchor="{anchor}" dominant-baseline="central">{tspans}</text>')
+    cls, aria = ("wide", f'role="img" aria-label="Pie chart: {html.escape(cat_label)}"') if labels else ("narrow", 'aria-hidden="true"')
+    return (f'<svg class="pie {cls}" viewBox="0 0 {W:.0f} {H:.0f}" style="max-width:{W:.0f}px" {aria} '
+            f'xmlns="http://www.w3.org/2000/svg">{"".join(parts)}</svg>')
+
+
 def chart_html(cat_label, g, panel_size, draw_text, show_targets, heading="h2"):
+    if STYLE["chart"] == "pie" and not g["count"].isna().all():
+        return pie_chart_html(cat_label, g, panel_size, draw_text, show_targets, heading)
+    return bar_chart_html(cat_label, g, panel_size, draw_text, show_targets, heading)
+
+
+def _data_table(cat_label, g, show_targets):
+    trs = [f"<tr><th scope=row>{html.escape(r.label)}</th><td>{r.count}</td><td>{r.percent:.1f}%</td>"
+           + (f"<td>{r.min}–{r.max}</td>" if show_targets else "") + "</tr>" for r in g.itertuples()]
+    return ("<div class='sr-only'><table><caption>" + html.escape(cat_label) + "</caption><thead><tr><th>Group</th><th>Panelists</th><th>Percent</th>"
+            + ("<th>Target range</th>" if show_targets else "") + "</tr></thead><tbody>" + "".join(trs) + "</tbody></table></div>")
+
+
+def _legend(g):
+    items = "".join(
+        f'<li><span class="sw" style="background:{PIE_PALETTE[(r.value_order - 1) % len(PIE_PALETTE)]}"></span>'
+        f'{html.escape(r.label)} <b>{pct_label(r.percent)}</b></li>' for r in g.itertuples() if r.count > 0)
+    return f'<ul class="legend" aria-hidden="true">{items}</ul>'
+
+
+def pie_chart_html(cat_label, g, panel_size, draw_text, show_targets, heading="h2"):
+    zero = [r.label for r in g.itertuples() if r.count == 0]
+    notes = []
+    if cat_label in CATEGORY_NOTES:
+        notes.append(html.escape(CATEGORY_NOTES[cat_label]))
+    if zero:
+        notes.append("No panelists selected: " + html.escape("; ".join(zero)))
+    cap = "".join(f"<p>{n}</p>" for n in notes)
+    return (f'<figure class="chart card"><{heading}>{html.escape(cat_label)}</{heading}>'
+            f'{pie_svg(cat_label, g)}{pie_svg(cat_label, g, labels=False)}{_legend(g)}{_data_table(cat_label, g, show_targets)}'
+            f'<figcaption>{cap}<p class="src">{panel_size} panelists selected by lottery{draw_text}</p></figcaption></figure>')
+
+
+def bar_chart_html(cat_label, g, panel_size, draw_text, show_targets, heading="h2"):
     if g["count"].isna().all():
         return (f'<figure class="chart"><{heading}>{html.escape(cat_label)}</{heading}>'
                 f'<p class="placeholder">Panel results will be posted here after the lottery.</p></figure>')
@@ -289,11 +440,12 @@ def write_site(t, panel_size, draw_date, show_targets, placeholder, banner=""):
         slug = slugify(label)
         slugs.append((slug, label))
         fig = chart_html(label, g, panel_size, draw_text, show_targets)
+        figs.append(fig)  # index already has a page-level banner
         if banner:
             fig = f'<div class="banner">{html.escape(banner)}</div>' + fig
-        figs.append(fig)
         (SITE / "embed" / f"{slug}.html").write_text(
-            page(f"{ASSEMBLY} panel: {label}", fig, slug).replace("{EXTRA}", ""), encoding="utf-8")
+            page(f"{ASSEMBLY} panel: {label}", fig, slug).replace(
+                "{EXTRA}", EMBED_PIE_CSS if STYLE["chart"] == "pie" else ""), encoding="utf-8")
 
     if not placeholder:
         # hidden categories (e.g. intersectional quota helpers) are left out of public data
@@ -312,7 +464,7 @@ def write_site(t, panel_size, draw_date, show_targets, placeholder, banner=""):
     body = ((f'<div class="banner">{html.escape(banner)}</div>' if banner else '') + f'<header><h1>Civic Assembly panel</h1><p>Who was selected for the {ASSEMBLY}{draw_text}</p></header>'
             f'<main><p>{"The panel will be drawn by public lottery. Results will appear here shortly after the draw." if placeholder else f"{panel_size} Cambridge residents were selected by lottery from everyone who registered. The lottery chose from panels built to match target ranges for each group below. Individual panelists are not identified."}</p>'
             f'{downloads}<div class="grid">{"".join(figs)}</div></main>')
-    (SITE / "index.html").write_text(page(f"{ASSEMBLY} panel", body).replace("{EXTRA}", INDEX_CSS), encoding="utf-8")
+    (SITE / "index.html").write_text(page(f"{ASSEMBLY} panel", body).replace("{EXTRA}", INDEX_CSS + ("body{background:#F3F5F8}main{max-width:820px}.grid{grid-template-columns:1fr}.grid .chart.card{border-color:#D6DBE6}" if STYLE["chart"] == "pie" else "")), encoding="utf-8")
     return slugs
 
 
@@ -344,7 +496,7 @@ def render_pngs_and_snippets(slugs, base_url):
         url = f"{base_url.rstrip('/')}/embed/{slug}.html"
         iframe = (f'<iframe src="{url}" title="Civic Assembly panel: {html.escape(label)}" '
                   f'style="width:100%;max-width:760px;height:{h}px;border:0" loading="lazy"></iframe>')
-        img = f'<img src="{base_url.rstrip("/")}/charts/{slug}.png" alt="Bar chart: Civic Assembly panel by {html.escape(label.lower())}" style="max-width:100%">'
+        img = f'<img src="{base_url.rstrip("/")}/charts/{slug}.png" alt="{STYLE["chart"].title()} chart: Civic Assembly panel by {html.escape(label.lower())}" style="max-width:100%">'
         rows.append(f"<h3>{html.escape(label)}</h3><p>iframe:</p><pre>{html.escape(iframe)}</pre>"
                     f"<p>image fallback:</p><pre>{html.escape(img)}</pre>")
     (SITE / "embed-codes.html").write_text(
@@ -367,7 +519,10 @@ def main():
     ap.add_argument("--base-url", default="https://YOUR-ORG.github.io/civic-assembly")
     ap.add_argument("--banner", default="", help='e.g. "TEST DATA - not actual results"')
     ap.add_argument("--strict", action="store_true", help="exit non-zero on validation warnings")
+    ap.add_argument("--style", choices=["pie", "bar"], default="pie",
+                    help="pie = Panelot-style pies (default); bar = bars with target ranges")
     a = ap.parse_args()
+    STYLE["chart"] = a.style
 
     cfg = load_config()
     if a.placeholder:

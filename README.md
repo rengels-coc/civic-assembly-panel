@@ -24,7 +24,9 @@ Only aggregate counts are published. The `Black(+) x Neighborhood` quota helper 
    Wording can be the registration wording or the Panelot display wording.
 2. Run `python build.py input\<file> --date 2026-10-05 --base-url https://rengels-coc.github.io/civic-assembly-panel --strict`. Do not pass `--banner`, because that adds the TEST DATA strip.
    - Any `UNRECOGNIZED` or `WARNING` lines mean a label mismatch or a total that isn't 40. Fix them before you publish. Add `--strict` to stop on warnings.
-   - Use `--no-targets` to hide the target-range bands.
+   - Use `--no-targets` to hide the target ranges (bar style only).
+   - Charts are Panelot-style pies by default: same colors, slice order, and rounding as the Panelot screen, so visual QA is a side-by-side comparison. Below 520px wide they switch to a pie plus a color legend. `--style bar` gives the older bar charts with target-range bands.
+   - Panelot's 9th and 10th colors don't print in the PDF. The pies assume the palette wraps (9th = blue, 10th = orange), based on the label halos in the screenshot. This only affects West Cambridge and North Cambridge.
 3. Check `site/index.html` locally, then run `git add -A; git commit -m "Live results"; git push`. Pages redeploys in about a minute. The browser and CDN may cache the old version for up to 10 minutes.
 4. Optional: upload `site/data/panel_composition.csv` to data.cambridgema.gov.
 
