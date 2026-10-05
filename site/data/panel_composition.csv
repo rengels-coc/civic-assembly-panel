@@ -1,19 +1,19 @@
 assembly,draw_date,panel_size,category,category_display,category_order,value,value_display,value_order,count,percent,target_min,target_max
-Cambridge Civic Assembly,2026-10-05,40,Gender,Gender,1,Female,Female,1,18,45.0,18,20
-Cambridge Civic Assembly,2026-10-05,40,Gender,Gender,1,Male,Male,2,20,50.0,18,20
+Cambridge Civic Assembly,2026-10-05,40,Gender,Gender,1,Female,Female,1,20,50.0,18,20
+Cambridge Civic Assembly,2026-10-05,40,Gender,Gender,1,Male,Male,2,18,45.0,18,20
 Cambridge Civic Assembly,2026-10-05,40,Gender,Gender,1,Other,Other,3,2,5.0,2,2
 Cambridge Civic Assembly,2026-10-05,40,Age,Age,2,16-24,16-24,1,9,22.5,8,10
 Cambridge Civic Assembly,2026-10-05,40,Age,Age,2,25-34,25-34,2,10,25.0,10,12
 Cambridge Civic Assembly,2026-10-05,40,Age,Age,2,35-44,35-44,3,6,15.0,6,6
-Cambridge Civic Assembly,2026-10-05,40,Age,Age,2,45-54,45-54,4,5,12.5,3,5
-Cambridge Civic Assembly,2026-10-05,40,Age,Age,2,55-64,55-64,5,4,10.0,3,5
+Cambridge Civic Assembly,2026-10-05,40,Age,Age,2,45-54,45-54,4,4,10.0,3,5
+Cambridge Civic Assembly,2026-10-05,40,Age,Age,2,55-64,55-64,5,5,12.5,3,5
 Cambridge Civic Assembly,2026-10-05,40,Age,Age,2,65+,65+,6,6,15.0,5,7
 Cambridge Civic Assembly,2026-10-05,40,Region,Neighborhood,3,East Cambridge (1),East Cambridge,1,4,10.0,3,4
 Cambridge Civic Assembly,2026-10-05,40,Region,Neighborhood,3,MIT/Area 2 (2),MIT/Area 2,2,0,0.0,0,1
 Cambridge Civic Assembly,2026-10-05,40,Region,Neighborhood,3,Wellington-Harrington (3),Wellington-Harrington,3,5,12.5,5,5
-Cambridge Civic Assembly,2026-10-05,40,Region,Neighborhood,3,Port (4),Port,4,5,12.5,5,6
+Cambridge Civic Assembly,2026-10-05,40,Region,Neighborhood,3,Port (4),Port,4,6,15.0,5,6
 Cambridge Civic Assembly,2026-10-05,40,Region,Neighborhood,3,Cambridgeport (5),Cambridgeport,5,4,10.0,4,5
-Cambridge Civic Assembly,2026-10-05,40,Region,Neighborhood,3,Mid-Cambridge (6),Mid-Cambridge,6,5,12.5,4,6
+Cambridge Civic Assembly,2026-10-05,40,Region,Neighborhood,3,Mid-Cambridge (6),Mid-Cambridge,6,4,10.0,4,6
 Cambridge Civic Assembly,2026-10-05,40,Region,Neighborhood,3,Riverside (7),Riverside,7,3,7.5,3,3
 Cambridge Civic Assembly,2026-10-05,40,Region,Neighborhood,3,Baldwin (8) & Neighborhood Nine (9),Baldwin & Neighborhood Nine,8,5,12.5,4,6
 Cambridge Civic Assembly,2026-10-05,40,Region,Neighborhood,3,West Cambridge (10) & Cambridge Highlands (12) & Strawberry Hill (13),West Cambridge & Cambridge Highlands & Strawberry Hill,9,3,7.5,2,5
@@ -22,9 +22,9 @@ Cambridge Civic Assembly,2026-10-05,40,Household Type,Housing status,4,Own,Owns 
 Cambridge Civic Assembly,2026-10-05,40,Household Type,Housing status,4,Rent - Market,Rents a market rate unit,2,17,42.5,17,19
 Cambridge Civic Assembly,2026-10-05,40,Household Type,Housing status,4,Rent - Non-Market,"Rents a subsidized, inclusionary, or affordable housing unit",3,8,20.0,7,8
 Cambridge Civic Assembly,2026-10-05,40,Household Type,Housing status,4,Transitional,Permanent supportive housing,4,1,2.5,1,1
-Cambridge Civic Assembly,2026-10-05,40,Race/Ethnicity,Race,5,Asian/East Indian - alone,Asian/East Indian,1,6,15.0,6,7
+Cambridge Civic Assembly,2026-10-05,40,Race/Ethnicity,Race,5,Asian/East Indian - alone,Asian/East Indian,1,7,17.5,6,7
 Cambridge Civic Assembly,2026-10-05,40,Race/Ethnicity,Race,5,Black/African American - alone,Black/African American,2,9,22.5,9,10
-Cambridge Civic Assembly,2026-10-05,40,Race/Ethnicity,Race,5,White/Caucasian - alone,White/Caucasian,3,19,47.5,18,21
+Cambridge Civic Assembly,2026-10-05,40,Race/Ethnicity,Race,5,White/Caucasian - alone,White/Caucasian,3,18,45.0,18,21
 Cambridge Civic Assembly,2026-10-05,40,Race/Ethnicity,Race,5,Other,Other,4,6,15.0,4,6
 Cambridge Civic Assembly,2026-10-05,40,Hispanic/Latinx,Hispanic/Latinx,6,Yes,Yes,1,5,12.5,3,5
 Cambridge Civic Assembly,2026-10-05,40,Hispanic/Latinx,Hispanic/Latinx,6,No,No,2,35,87.5,35,37
