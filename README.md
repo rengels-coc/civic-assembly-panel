@@ -7,6 +7,8 @@ Turns the Panelot lottery result into:
 - `site/data/panel_composition.csv` (and `.json`): one long table (category, group, count, percent, target min/max). Upload it to Socrata as a single dataset.
 - `site/index.html`: all charts on one page.
 - `site/embed/<category>.html`: one chart per category, for iframes on the City site. Each page reports its height to the parent page via `postMessage`.
+- `site/embed/all.html`: **recommended**. Every chart in one iframe. `embed-codes.html` has the snippet and an optional auto-size script, and `host-demo.html` shows it on a mock City page.
+- Freshness: GitHub Pages lets browsers cache pages for 10 minutes. Every page checks `data/version.json`, which bypasses the cache, on load and every 2 minutes while visible. If there's a newer build, the page reloads itself, so the City site never needs to change URLs or cache-bust. PNGs aren't covered, and copies uploaded into the CMS never update.
 - `site/charts/<category>.png`: static images for CMS pages that block iframes.
 - `site/embed-codes.html`: copy-paste iframe and `<img>` snippets.
 

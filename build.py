@@ -17,7 +17,7 @@ import json
 import math
 import re
 import sys
-from datetime import date
+from datetime import date, datetime
 from pathlib import Path
 
 import pandas as pd
@@ -398,8 +398,20 @@ def bar_chart_html(cat_label, g, panel_size, draw_text, show_targets, heading="h
             f'<figcaption>{legend}</figcaption></figure>')
 
 
-def page(title, body, slug=None):
+# GitHub Pages sends Cache-Control: max-age=600, so a browser can show an old copy for 10 minutes.
+# Each page checks version.json (no-store) and reloads itself with ?v=<build> when the site has changed.
+BUILD = {"id": ""}
+FRESH_JS = """<script>
+(function(){var V=%s,P=%s;function chk(){try{fetch(P+"?t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json()}).then(function(j){
+var u=new URL(location.href);if(j.build&&j.build!==V&&u.searchParams.get("v")!==j.build){u.searchParams.set("v",j.build);location.replace(u.href)}}).catch(function(){})}catch(e){}}
+chk();setInterval(function(){if(!document.hidden)chk()},120000);})();
+</script>"""
+
+
+def page(title, body, slug=None, data_prefix="../"):
     js = HEIGHT_JS % json.dumps(slug) if slug else ""
+    if BUILD["id"]:
+        js += FRESH_JS % (json.dumps(BUILD["id"]), json.dumps(data_prefix + "data/version.json"))
     return (f'<!doctype html><html lang="en"><head><meta charset="utf-8">'
             f'<meta name="viewport" content="width=device-width,initial-scale=1">'
             f'<title>{html.escape(title)}</title>{FONTS}<style>{CSS}{{EXTRA}}</style></head>'
@@ -427,6 +439,8 @@ def write_site(t, panel_size, draw_date, show_targets, placeholder, banner=""):
     for d in ("embed", "data", "charts"):
         (SITE / d).mkdir(parents=True, exist_ok=True)
     (SITE / ".nojekyll").write_text("")
+    BUILD["id"] = datetime.now().strftime("%Y%m%d%H%M%S")
+    (SITE / "data" / "version.json").write_text(json.dumps({"build": BUILD["id"], "placeholder": placeholder}))
 
     draw_text = ""
     if draw_date:
@@ -447,6 +461,24 @@ def write_site(t, panel_size, draw_date, show_targets, placeholder, banner=""):
             page(f"{ASSEMBLY} panel: {label}", fig, slug).replace(
                 "{EXTRA}", EMBED_PIE_CSS if STYLE["chart"] == "pie" else ""), encoding="utf-8")
 
+    # one embed with every chart (single iframe for the website)
+    all_body = ((f'<div class="banner">{html.escape(banner)}</div>' if banner else "")
+                + f'<div class="stack">{"".join(figs)}</div>')
+    all_css = (EMBED_PIE_CSS if STYLE["chart"] == "pie" else "") + \
+        ".stack{display:grid;gap:12px;max-width:820px;margin:0 auto}.stack .chart{border:1px solid #D6DBE6}"
+    (SITE / "embed" / "all.html").write_text(
+        page(f"{ASSEMBLY} panel", all_body, "all").replace("{EXTRA}", all_css), encoding="utf-8")
+    slugs.insert(0, ("all", "All charts"))
+    (SITE / "host-demo.html").write_text(
+        '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
+        '<title>Embed demo</title></head><body style="font-family:Arial,sans-serif;max-width:900px;margin:20px auto;padding:0 12px">'
+        '<h1>Mock City web page</h1><p>Page copy above the embed. This page uses the recommended all-charts iframe plus the auto-size script.</p>'
+        '<iframe id="civic-assembly-all" src="embed/all.html" title="Civic Assembly panel composition" '
+        'style="width:100%;height:3000px;border:0"></iframe>'
+        '<script>addEventListener("message",function(e){if(e.origin!==location.origin||!e.data||e.data.type!=="civic-assembly-embed")return;'
+        'var f=document.getElementById("civic-assembly-"+e.data.slug);if(f)f.style.height=(e.data.height+4)+"px"});</script>'
+        '<p>Page copy below the embed.</p></body></html>', encoding="utf-8")
+
     if not placeholder:
         # hidden categories (e.g. intersectional quota helpers) are left out of public data
         out = t[t["show"]].drop(columns=["show", "label"]).rename(columns={"category_label": "category_display"})
@@ -464,7 +496,7 @@ def write_site(t, panel_size, draw_date, show_targets, placeholder, banner=""):
     body = ((f'<div class="banner">{html.escape(banner)}</div>' if banner else '') + f'<header><h1>Civic Assembly panel</h1><p>Who was selected for the {ASSEMBLY}{draw_text}</p></header>'
             f'<main><p>{"The panel will be drawn by public lottery. Results will appear here shortly after the draw." if placeholder else f"{panel_size} Cambridge residents were selected by lottery from everyone who registered. The lottery chose from panels built to match target ranges for each group below. Individual panelists are not identified."}</p>'
             f'{downloads}<div class="grid">{"".join(figs)}</div></main>')
-    (SITE / "index.html").write_text(page(f"{ASSEMBLY} panel", body).replace("{EXTRA}", INDEX_CSS + ("body{background:#F3F5F8}main{max-width:820px}.grid{grid-template-columns:1fr}.grid .chart.card{border-color:#D6DBE6}" if STYLE["chart"] == "pie" else "")), encoding="utf-8")
+    (SITE / "index.html").write_text(page(f"{ASSEMBLY} panel", body, data_prefix="").replace("{EXTRA}", INDEX_CSS + ("body{background:#F3F5F8}main{max-width:820px}.grid{grid-template-columns:1fr}.grid .chart.card{border-color:#D6DBE6}" if STYLE["chart"] == "pie" else "")), encoding="utf-8")
     return slugs
 
 
@@ -485,24 +517,45 @@ def render_pngs_and_snippets(slugs, base_url):
                 pg.wait_for_load_state("networkidle")
                 h = pg.evaluate("Math.ceil(document.body.getBoundingClientRect().height)")
                 heights.setdefault(slug, {})[width] = h
-                if width == 700:
+                if width == 700 and slug != "all":
                     pg.set_viewport_size({"width": width, "height": h})
                     pg.screenshot(path=str(SITE / "charts" / f"{slug}.png"))
                     pg.set_viewport_size({"width": width, "height": 100})
         b.close()
     rows = []
+    base = base_url.rstrip("/")
+    origin = re.match(r"https?://[^/]+", base)
+    origin = origin.group(0) if origin else base
     for slug, label in slugs:
         h = max(heights[slug].values()) + 20
-        url = f"{base_url.rstrip('/')}/embed/{slug}.html"
-        iframe = (f'<iframe src="{url}" title="Civic Assembly panel: {html.escape(label)}" '
-                  f'style="width:100%;max-width:760px;height:{h}px;border:0" loading="lazy"></iframe>')
-        img = f'<img src="{base_url.rstrip("/")}/charts/{slug}.png" alt="{STYLE["chart"].title()} chart: Civic Assembly panel by {html.escape(label.lower())}" style="max-width:100%">'
+        url = f"{base}/embed/{slug}.html"
+        title = f"Civic Assembly panel: {label}" if slug != "all" else "Civic Assembly panel composition"
+        iframe = (f'<iframe id="civic-assembly-{slug}" src="{url}" title="{html.escape(title)}" '
+                  f'style="width:100%;max-width:860px;height:{h}px;border:0" loading="lazy"></iframe>')
+        if slug == "all":
+            resize = ('<script>addEventListener("message",function(e){if(e.origin!=="' + origin + '"||!e.data||'
+                      'e.data.type!=="civic-assembly-embed")return;var f=document.getElementById("civic-assembly-"+e.data.slug);'
+                      'if(f)f.style.height=(e.data.height+4)+"px"});</script>')
+            rows.append("<h2>Recommended: all charts in one iframe</h2>"
+                        f"<p>Stacked in one column. Measured heights: {heights[slug].get(700)}px at 700px wide, "
+                        f"{heights[slug].get(360)}px at 360px wide (phone). Phones are taller because the labels "
+                        "move into a legend. Paste the iframe, plus the script if the CMS allows it. The script "
+                        "auto-sizes the iframe so there is no inner scrollbar or gap. Without the script, the fixed "
+                        "height below fits the tallest layout, which leaves some empty space on desktop.</p>"
+                        f"<pre>{html.escape(iframe)}\n{html.escape(resize)}</pre><h2>Individual charts</h2>")
+            continue
+        img = f'<img src="{base}/charts/{slug}.png" alt="{STYLE["chart"].title()} chart: Civic Assembly panel by {html.escape(label.lower())}" style="max-width:100%">'
         rows.append(f"<h3>{html.escape(label)}</h3><p>iframe:</p><pre>{html.escape(iframe)}</pre>"
                     f"<p>image fallback:</p><pre>{html.escape(img)}</pre>")
     (SITE / "embed-codes.html").write_text(
         page("Embed codes", "<main style='padding:16px;max-width:900px'><h1>Embed codes</h1>"
              "<p>Heights measured at 360px and 700px widths (+20px). Each embed also posts its height via "
              "<code>postMessage</code> ({type:'civic-assembly-embed', slug, height}) for hosts that auto-size.</p>"
+             "<p><b>Updates:</b> the URLs never change. When new data is pushed, open embeds reload themselves "
+                          "when they load and every 2 minutes while visible. They do this by checking <code>data/version.json</code>, "
+                          "which bypasses the cache. Nothing needs to be cache-busted on the "
+             "City site. The PNG images can be up to 10 minutes stale, and won't update at all if they were "
+             "uploaded into the CMS.</p>"
              + "".join(rows) + "</main>").replace("{EXTRA}", "pre{white-space:pre-wrap;background:#f4f4f4;padding:8px}"),
         encoding="utf-8")
     return heights
