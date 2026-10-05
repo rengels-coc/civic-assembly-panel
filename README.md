@@ -1,0 +1,36 @@
+# Civic Assembly panel: open data + embeddable charts
+
+Turns the Panelot lottery result into:
+
+- `site/data/panel_composition.csv` (and `.json`): one long table (category, group, count, percent, target min/max). Upload it to Socrata as a single dataset.
+- `site/index.html`: all charts on one page.
+- `site/embed/<category>.html`: one chart per category, for iframes on the City site. Each page reports its height to the parent page via `postMessage`.
+- `site/charts/<category>.png`: static images for CMS pages that block iframes.
+- `site/embed-codes.html`: copy-paste iframe and `<img>` snippets.
+
+Only aggregate counts are published. The `Black(+) x Neighborhood` quota helper is hidden (`show=0` in `config/categories.csv`) because its cells are very small.
+
+## Tonight's runbook
+
+1. Get the result in **any** of these forms and save it in `input/`:
+   - a per-panelist CSV or XLSX (one row per person, one column per category), **or**
+   - category / value / count, **or**
+   - category / value / percent (as on the Panelot screen). If that's all you have, fill in `input/manual_counts_template.csv`.
+   
+   Wording can be the registration wording or the Panelot display wording.
+2. Run `python build.py input\<file> --date 2026-10-05 --base-url https://<org>.github.io/<repo>`
+   - Any `UNRECOGNIZED` or `WARNING` lines mean a label mismatch or a total that isn't 40. Fix them before you publish. Add `--strict` to stop on warnings.
+   - Use `--no-targets` to hide the target-range bands.
+3. Check `site/index.html` locally, then commit and push `site/`. GitHub Pages updates in about a minute.
+4. Optional: upload `site/data/panel_composition.csv` to data.cambridgema.gov.
+
+## Before the draw
+
+- Run `python build.py --placeholder --date 2026-10-05` and push. The embed URLs stay the same, so the website can embed them now and they fill in when you push the results.
+- To get iframe heights, use `site/embed-codes.html` from a run with real or sample data. Placeholder heights are too short.
+
+## Test fixtures
+
+`input/test/` has the sample screenshot's numbers in three formats. All three must produce identical output:
+`sample_counts.csv`, `sample_percents.csv` (Panelot labels), and `sample_panelists.xlsx` (synthetic people).
+`tests/host_test.html` is a mock host page that auto-sizes the iframes.

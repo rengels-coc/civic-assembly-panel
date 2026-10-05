@@ -1,0 +1,5 @@
+input/*
+!input/manual_counts_template.csv
+!input/test/
+__pycache__/
+*.pyc

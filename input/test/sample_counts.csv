@@ -1,0 +1,43 @@
+category,value,count
+Gender,Female,18
+Gender,Male,20
+Gender,Other,2
+Age,16-24,9
+Age,25-34,10
+Age,35-44,6
+Age,45-54,5
+Age,55-64,4
+Age,65+,6
+Region,East Cambridge (1),4
+Region,Wellington-Harrington (3),5
+Region,Port (4),5
+Region,Cambridgeport (5),4
+Region,Mid-Cambridge (6),5
+Region,Riverside (7),3
+Region,Baldwin (8) & Neighborhood Nine (9),5
+Region,West Cambridge (10) & Cambridge Highlands (12) & Strawberry Hill (13),3
+Region,North Cambridge (11),6
+Household Type,Own,14
+Household Type,Rent - Market,17
+Household Type,Rent - Non-Market,8
+Household Type,Transitional,1
+Race/Ethnicity,Asian/East Indian - alone,6
+Race/Ethnicity,Black/African American - alone,9
+Race/Ethnicity,Other,6
+Race/Ethnicity,White/Caucasian - alone,19
+Hispanic/Latinx,Yes,5
+Hispanic/Latinx,No,35
+Black(+) x Neighborhood,Black & North Cambridge,1
+Black(+) x Neighborhood,Black & Port,2
+Black(+) x Neighborhood,Black & Wellington-Harrington,1
+Black(+) x Neighborhood,No,36
+Education,16-24 Not Student,3
+Education,16-24 Student,6
+Education,High school degree / GED,2
+Education,"Some college, no degree / Associate's degree or technical certificate",4
+Education,"Bachelor's degree / Graduate, professional, or advanced studies, no degree",10
+Education,"Graduate, professional, or advanced degree",15
+Experience with Gun Violence,No experience with gun violence,20
+Experience with Gun Violence,A family member or someone close to me has experienced gun violence,7
+Experience with Gun Violence,Gun violence has affected my neighborhood or community,7
+Experience with Gun Violence,I have personally experienced gun violence,6

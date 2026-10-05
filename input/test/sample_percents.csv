@@ -1,0 +1,43 @@
+Category,Value,Percent
+Gender,Female,45%
+Gender,Male,50%
+Gender,Other,5%
+Age,16-24,22%
+Age,25-34,25%
+Age,35-44,15%
+Age,45-54,12%
+Age,55-64,10%
+Age,65+,15%
+Neighborhood,East Cambridge,10%
+Neighborhood,Wellington-Harrington,12%
+Neighborhood,Port,12%
+Neighborhood,Cambridgeport,10%
+Neighborhood,Mid-Cambridge,12%
+Neighborhood,Riverside,8%
+Neighborhood,Baldwin & Neighborhood Nine,12%
+Neighborhood,West Cambridge & Cambridge Highlands & Strawberry Hill,8%
+Neighborhood,North Cambridge,15%
+Housing status,Owns residence,35%
+Housing status,Rents a market rate unit,42%
+Housing status,"Rents a subsidized, inclusionary, or affordable housing unit",20%
+Housing status,Permanent supportive housing,2%
+Race,Asian/East Indian,15%
+Race,Black/African American,22%
+Race,Other,15%
+Race,White/Caucasian,48%
+Hispanic/Latinx,Yes,12%
+Hispanic/Latinx,No,88%
+Black(+) x Neighborhood,Black & North Cambridge,2%
+Black(+) x Neighborhood,Black & Port,5%
+Black(+) x Neighborhood,Black & Wellington-Harrington,2%
+Black(+) x Neighborhood,No,90%
+Education,Not student (age 16-24),8%
+Education,Student (age 16-24),15%
+Education,High school degree / GED (age 25+),5%
+Education,"Some college, no degree / Associate's degree or technical certificate (age 25+)",10%
+Education,"Bachelor's degree / Graduate, professional, or advanced studies, no degree (age 25+)",25%
+Education,"Graduate, professional, or advanced degree (age 25+)",38%
+Experience with gun violence,No experience with gun violence,50%
+Experience with gun violence,A family member or someone close has experienced gun violence,18%
+Experience with gun violence,Gun violence has affected their neighborhood or community,18%
+Experience with gun violence,Has personally experienced gun violence,15%
