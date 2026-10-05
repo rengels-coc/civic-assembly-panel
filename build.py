@@ -8,6 +8,7 @@ INPUT can be CSV or XLSX in any of these shapes (auto-detected):
   1. One row per panelist, one column per category (e.g. Gender, Age, Region...).
   2. Long counts:   category,value,count
   3. Long percents: category,value,percent   (converted with --panel-size)
+  4. A printed Panelot "Panel Draw" PDF (see extract_pdf.py)
 Category/value text may be the Panelot/registration wording or the display label.
 """
 import argparse
@@ -57,6 +58,9 @@ def load_config():
     cfg["max"] = cfg["max"].astype(int)
     cfg["show"] = cfg["show"].astype(int).astype(bool)
     cfg["category_order"] = cfg.groupby("category", sort=False).ngroup() + 1
+    # display values in the same order Panelot shows them in the room
+    cfg = cfg.assign(_o=cfg["panelot_order"].astype(int)).sort_values(["category_order", "_o"], kind="stable").drop(columns=["_o", "panelot_order"]).reset_index(drop=True)
+    cfg["value_order"] = cfg.groupby("category").cumcount() + 1
     cfg["value_order"] = cfg.groupby("category").cumcount() + 1
     return cfg
 
@@ -79,8 +83,18 @@ def value_lookup(cfg):
     return look
 
 
+PDF_PROBLEMS = []
+
+
 def read_any(path):
     path = Path(path)
+    if path.suffix.lower() == ".pdf":
+        from extract_pdf import extract
+        df, problems, _ = extract(path)
+        for p in problems:
+            print("PDF PROBLEM:", p)
+        PDF_PROBLEMS.extend(problems)
+        return {"pdf": df}, path
     if path.suffix.lower() in (".xlsx", ".xls"):
         sheets = pd.read_excel(path, sheet_name=None, dtype=str)
         # pick the sheet with the most recognizable columns
@@ -149,7 +163,7 @@ def build_table(cfg, counts, panel_size, draw_date):
 
 def validate(t, panel_size):
     warnings = []
-    for cat, g in t.groupby("category", sort=False):
+    for cat, g in t[t["show"]].groupby("category", sort=False):
         total = int(g["count"].sum())
         if total != panel_size:
             warnings.append(f"{cat}: counts sum to {total}, expected {panel_size}")
@@ -377,12 +391,12 @@ def main():
                 print("  -", e)
         t = build_table(cfg, counts, a.panel_size, a.date)
         warns = validate(t, a.panel_size)
-        missing = [c for c in t["category"].unique() if not any(k[0] == c for k in counts)]
+        missing = [c for c in t.loc[t["show"], "category"].unique() if not any(k[0] == c for k in counts)]
         if missing:
             warns.insert(0, f"No data for categories: {missing}")
         for w in warns:
             print("WARNING:", w)
-        if a.strict and (warns or errors):
+        if a.strict and (warns or errors or PDF_PROBLEMS):
             sys.exit(1)
 
     slugs = write_site(t, a.panel_size, a.date, not a.no_targets, a.placeholder, a.banner)
@@ -393,6 +407,9 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
 
 
 

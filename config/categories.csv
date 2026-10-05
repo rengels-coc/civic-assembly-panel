@@ -1,45 +1,45 @@
-category,category_label,show,value,label,min,max
-Gender,Gender,1,Female,Female,18,20
-Gender,Gender,1,Male,Male,18,20
-Gender,Gender,1,Other,Other,2,2
-Age,Age,1,16-24,16-24,8,10
-Age,Age,1,25-34,25-34,10,12
-Age,Age,1,35-44,35-44,6,6
-Age,Age,1,45-54,45-54,3,5
-Age,Age,1,55-64,55-64,3,5
-Age,Age,1,65+,65+,5,7
-Region,Neighborhood,1,East Cambridge (1),East Cambridge,3,4
-Region,Neighborhood,1,MIT/Area 2 (2),MIT/Area 2,0,1
-Region,Neighborhood,1,Wellington-Harrington (3),Wellington-Harrington,5,5
-Region,Neighborhood,1,Port (4),Port,5,6
-Region,Neighborhood,1,Cambridgeport (5),Cambridgeport,4,5
-Region,Neighborhood,1,Mid-Cambridge (6),Mid-Cambridge,4,6
-Region,Neighborhood,1,Riverside (7),Riverside,3,3
-Region,Neighborhood,1,Baldwin (8) & Neighborhood Nine (9),Baldwin & Neighborhood Nine,4,6
-Region,Neighborhood,1,West Cambridge (10) & Cambridge Highlands (12) & Strawberry Hill (13),West Cambridge & Cambridge Highlands & Strawberry Hill,2,5
-Region,Neighborhood,1,North Cambridge (11),North Cambridge,4,6
-Household Type,Housing status,1,Own,Owns residence,12,14
-Household Type,Housing status,1,Rent - Market,Rents a market rate unit,17,19
-Household Type,Housing status,1,Rent - Non-Market,"Rents a subsidized, inclusionary, or affordable housing unit",7,8
-Household Type,Housing status,1,Transitional,Permanent supportive housing,1,1
-Race/Ethnicity,Race,1,Asian/East Indian - alone,Asian/East Indian,6,7
-Race/Ethnicity,Race,1,Black/African American - alone,Black/African American,9,10
-Race/Ethnicity,Race,1,White/Caucasian - alone,White/Caucasian,18,21
-Race/Ethnicity,Race,1,Other,Other,4,6
-Hispanic/Latinx,Hispanic/Latinx,1,Yes,Yes,3,5
-Hispanic/Latinx,Hispanic/Latinx,1,No,No,35,37
-Black(+) x Neighborhood,Black(+) x Neighborhood,0,Black & North Cambridge,Black & North Cambridge,1,10
-Black(+) x Neighborhood,Black(+) x Neighborhood,0,Black & Port,Black & Port,2,10
-Black(+) x Neighborhood,Black(+) x Neighborhood,0,Black & Wellington-Harrington,Black & Wellington-Harrington,1,10
-Black(+) x Neighborhood,Black(+) x Neighborhood,0,No,No,36,36
-Education,Education,1,16-24 Student,Student (age 16-24),6,7
-Education,Education,1,16-24 Not Student,Not student (age 16-24),2,3
-Education,Education,1,Less than high school/GED,Less than high school / GED (age 25+),0,1
-Education,Education,1,High school degree / GED,High school degree / GED (age 25+),1,3
-Education,Education,1,"Some college, no degree / Associate's degree or technical certificate","Some college, no degree / Associate's degree or technical certificate (age 25+)",2,4
-Education,Education,1,"Bachelor's degree / Graduate, professional, or advanced studies, no degree","Bachelor's degree / Graduate, professional, or advanced studies, no degree (age 25+)",8,10
-Education,Education,1,"Graduate, professional, or advanced degree","Graduate, professional, or advanced degree (age 25+)",15,15
-Experience with Gun Violence,Experience with gun violence,1,I have personally experienced gun violence,Has personally experienced gun violence,6,7
-Experience with Gun Violence,Experience with gun violence,1,A family member or someone close to me has experienced gun violence,A family member or someone close has experienced gun violence,6,7
-Experience with Gun Violence,Experience with gun violence,1,Gun violence has affected my neighborhood or community,Gun violence has affected their neighborhood or community,6,7
-Experience with Gun Violence,Experience with gun violence,1,No experience with gun violence,No experience with gun violence,20,20
+category,category_label,show,value,label,min,max,panelot_order
+Gender,Gender,1,Female,Female,18,20,1
+Gender,Gender,1,Male,Male,18,20,2
+Gender,Gender,1,Other,Other,2,2,3
+Age,Age,1,16-24,16-24,8,10,1
+Age,Age,1,25-34,25-34,10,12,2
+Age,Age,1,35-44,35-44,6,6,3
+Age,Age,1,45-54,45-54,3,5,4
+Age,Age,1,55-64,55-64,3,5,5
+Age,Age,1,65+,65+,5,7,6
+Region,Neighborhood,1,East Cambridge (1),East Cambridge,3,4,1
+Region,Neighborhood,1,MIT/Area 2 (2),MIT/Area 2,0,1,2
+Region,Neighborhood,1,Wellington-Harrington (3),Wellington-Harrington,5,5,3
+Region,Neighborhood,1,Port (4),Port,5,6,4
+Region,Neighborhood,1,Cambridgeport (5),Cambridgeport,4,5,5
+Region,Neighborhood,1,Mid-Cambridge (6),Mid-Cambridge,4,6,6
+Region,Neighborhood,1,Riverside (7),Riverside,3,3,7
+Region,Neighborhood,1,Baldwin (8) & Neighborhood Nine (9),Baldwin & Neighborhood Nine,4,6,8
+Region,Neighborhood,1,West Cambridge (10) & Cambridge Highlands (12) & Strawberry Hill (13),West Cambridge & Cambridge Highlands & Strawberry Hill,2,5,9
+Region,Neighborhood,1,North Cambridge (11),North Cambridge,4,6,10
+Household Type,Housing status,1,Own,Owns residence,12,14,1
+Household Type,Housing status,1,Rent - Market,Rents a market rate unit,17,19,2
+Household Type,Housing status,1,Rent - Non-Market,"Rents a subsidized, inclusionary, or affordable housing unit",7,8,3
+Household Type,Housing status,1,Transitional,Permanent supportive housing,1,1,4
+Race/Ethnicity,Race,1,Asian/East Indian - alone,Asian/East Indian,6,7,1
+Race/Ethnicity,Race,1,Black/African American - alone,Black/African American,9,10,2
+Race/Ethnicity,Race,1,White/Caucasian - alone,White/Caucasian,18,21,3
+Race/Ethnicity,Race,1,Other,Other,4,6,4
+Hispanic/Latinx,Hispanic/Latinx,1,Yes,Yes,3,5,1
+Hispanic/Latinx,Hispanic/Latinx,1,No,No,35,37,2
+Black(+) x Neighborhood,Black(+) x Neighborhood,0,Black & North Cambridge,Black & North Cambridge,1,10,1
+Black(+) x Neighborhood,Black(+) x Neighborhood,0,Black & Port,Black & Port,2,10,2
+Black(+) x Neighborhood,Black(+) x Neighborhood,0,Black & Wellington-Harrington,Black & Wellington-Harrington,1,10,3
+Black(+) x Neighborhood,Black(+) x Neighborhood,0,No,No,36,36,4
+Education,Education,1,16-24 Student,Student (age 16-24),6,7,2
+Education,Education,1,16-24 Not Student,Not student (age 16-24),2,3,1
+Education,Education,1,Less than high school/GED,Less than high school / GED (age 25+),0,1,3
+Education,Education,1,High school degree / GED,High school degree / GED (age 25+),1,3,4
+Education,Education,1,"Some college, no degree / Associate's degree or technical certificate","Some college, no degree / Associate's degree or technical certificate (age 25+)",2,4,5
+Education,Education,1,"Bachelor's degree / Graduate, professional, or advanced studies, no degree","Bachelor's degree / Graduate, professional, or advanced studies, no degree (age 25+)",8,10,6
+Education,Education,1,"Graduate, professional, or advanced degree","Graduate, professional, or advanced degree (age 25+)",15,15,7
+Experience with Gun Violence,Experience with gun violence,1,I have personally experienced gun violence,Has personally experienced gun violence,6,7,4
+Experience with Gun Violence,Experience with gun violence,1,A family member or someone close to me has experienced gun violence,A family member or someone close has experienced gun violence,6,7,3
+Experience with Gun Violence,Experience with gun violence,1,Gun violence has affected my neighborhood or community,Gun violence has affected their neighborhood or community,6,7,2
+Experience with Gun Violence,Experience with gun violence,1,No experience with gun violence,No experience with gun violence,20,20,1
